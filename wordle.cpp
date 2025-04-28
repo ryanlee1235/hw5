@@ -15,7 +15,7 @@ using namespace std;
 // Add prototypes of helper functions here
 void wordleHelper(const std::string& in,
     const std::string& floating,
-    const std::set<std::string>& dict, int index, std::set<std::string>& generated);
+    const std::set<std::string>& dict, int index, int remaining, std::set<std::string>& generated);
 
 // Definition of primary wordle function
 std::set<std::string> wordle(
@@ -25,16 +25,21 @@ std::set<std::string> wordle(
 {
     // Add your code here
     std::set<std::string> generated;
-    wordleHelper(in, floating, dict, 0, generated);
+    int remaining = 0;
+    for(size_t i = 0; i < in.size(); i++)
+    {
+        if(in[i] == '-') remaining++;
+    }
+    wordleHelper(in, floating, dict, 0, remaining, generated);
     return generated;
 }
 
 // Define any helper functions here
 void wordleHelper(const std::string& in,
     const std::string& floating,
-    const std::set<std::string>& dict, int index, std::set<std::string>& generated)
+    const std::set<std::string>& dict, int index, int remaining, std::set<std::string>& generated)
 {
-    if(index == in.size())
+    if(index == (int)in.size())
     {
         if(floating.empty())
         {
@@ -47,22 +52,25 @@ void wordleHelper(const std::string& in,
     }
     if(in[index] != '-')
     {
-        wordleHelper(in, floating, dict, index + 1, generated); // just skip the index if this is a fixed value
+        wordleHelper(in, floating, dict, index + 1, remaining, generated); // just skip the index if this is a fixed value
     }
     else
     {
-        for(int k = 0; k < floating.size(); k++)
+        for(size_t k = 0; k < floating.size(); k++)
         {
             std::string word = in;
             word[index] = floating[k];
             string newFloating = floating.substr(0, k) + floating.substr(k + 1, floating.size()); // remove the current floating letter
-            wordleHelper(word, newFloating, dict, index + 1, generated);
+            wordleHelper(word, newFloating, dict, index + 1, remaining - 1, generated);
         }
-        for(int i = 0; i < 26; i++)
+        if((int)floating.size() < remaining)
         {
-            std::string word = in;
-            word[index] = 'a' + i; // loop through every character in alpha and then recurse w each option in the blank
-            wordleHelper(word, floating, dict, index + 1, generated);
+            for(int i = 0; i < 26; i++)
+            {
+                std::string word = in;
+                word[index] = 'a' + i; // loop through every character in alpha and then recurse w each option in the blank
+                wordleHelper(word, floating, dict, index + 1, remaining - 1, generated);
+            }
         }
     }
     return;
