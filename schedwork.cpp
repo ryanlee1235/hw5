@@ -43,7 +43,7 @@ bool schedule(
     // create empty matrix to track workers' shift amts
     std::vector<size_t> amt(avail[0].size());
 
-    // dive into rec. function
+    // dive into rec. function, extra vars to track are day index, worker index, and tracking amt of shifts
     return schedHelper(avail, dailyNeed, maxShifts, sched, 0, 0, amt);
 }
 
